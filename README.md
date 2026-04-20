@@ -10,7 +10,7 @@ A **Neptun LevelUP!** egy univerzális böngésző kiegészítő (UserScript), a
 
 ## ✨ Főbb funkciók
 
-**V1.0
+### V1.0
 
 | Funkció | Leírás |
 | :--- | :--- |
