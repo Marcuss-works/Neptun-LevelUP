@@ -1,4 +1,4 @@
-# 🚀 Neptun LevelUP! - V1.0
+# 🚀 Neptun LevelUP!
 
 ![Neptun LevelUP Banner](https://img.shields.io/badge/Neptun-LevelUP-00dea4?style=for-the-badge&logo=javascript)
 ![Version](https://img.shields.io/badge/Version-V1.0-blue?style=for-the-badge)
@@ -9,6 +9,8 @@ A **Neptun LevelUP!** egy univerzális böngésző kiegészítő (UserScript), a
 ---
 
 ## ✨ Főbb funkciók
+
+**V1.0
 
 | Funkció | Leírás |
 | :--- | :--- |
