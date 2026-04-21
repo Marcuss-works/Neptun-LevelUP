@@ -4,8 +4,10 @@
 ![Version](https://img.shields.io/badge/Version-V1.0-blue?style=for-the-badge)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](https://github.com/Marcuss-works/Neptun-LevelUP/blob/main/LICENSE)
 [![Telepítés](https://img.shields.io/badge/Telepítés-Kattints%20ide-brightgreen?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js)
+![Neptun Version](https://img.shields.io/badge/Neptun_Verzió-2025.3.25-red?style=for-the-badge&logo=probot)
 
-A **Neptun LevelUP!** egy univerzális böngésző kiegészítő (UserScript), amely modernizálja, gyorsítja és testreszabhatóvá teszi a Neptun egységes tanulmányi rendszert. Felejtsd el a lassú belépést és a régimódi felületet!
+A **Neptun LevelUP!** egy univerzális böngésző kiegészítő (UserScript), amely modernizálja, gyorsítja és testreszabhatóvá teszi a
+Neptun egységes tanulmányi rendszert. Felejtsd el a lassú belépést és a régimódi felületet!
 
 ---
 
