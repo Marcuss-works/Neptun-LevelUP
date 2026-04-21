@@ -2,7 +2,8 @@
 
 ![Neptun LevelUP Banner](https://img.shields.io/badge/Neptun-LevelUP-00dea4?style=for-the-badge&logo=javascript)
 ![Version](https://img.shields.io/badge/Version-V1.0-blue?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](https://github.com/Marcuss-works/Neptun-LevelUP/blob/main/LICENSE)
+[![Telepítés](https://img.shields.io/badge/Telepítés-Kattints%20ide-brightgreen?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js)
 
 A **Neptun LevelUP!** egy univerzális böngésző kiegészítő (UserScript), amely modernizálja, gyorsítja és testreszabhatóvá teszi a Neptun egységes tanulmányi rendszert. Felejtsd el a lassú belépést és a régimódi felületet!
 
@@ -32,7 +33,7 @@ Kövesd az alábbi lépéseket a script beüzemeléséhez:
 A használathoz szükséged van egy bővítményre, ami futtatja a kódot. Válaszd a böngésződnek megfelelőt:
 * **Chrome / Edge / Brave / Opera:** [Tampermonkey letöltése](https://www.tampermonkey.net/) (**Ajánlott**)
 * **Firefox:** [Greasemonkey letöltése](https://addons.mozilla.org/hu/firefox/addon/greasemonkey/)
-* Chrome / Edge / Opera alkalmazásnál: [kapcsold be a fejlesztői módot](https://www.tampermonkey.net/faq.php#Q209) a beállításokban. (**Fontos**)
+* **Chrome / Edge / Opera alkalmazásnál:** [kapcsold be a fejlesztői módot](https://www.tampermonkey.net/faq.php#Q209) a beállításokban. (**Fontos**)
 
 ### 2. A Neptun LevelUP! hozzáadása
 1. Keresd meg a fájllistában a `neptun_levelup.user.js` fájlt és kattints rá.
@@ -45,7 +46,8 @@ A használathoz szükséged van egy bővítményre, ami futtatja a kódot. Vála
 3. A bal alsó sarokban lévő **🔧 (csavarkulcs)** ikonnal nyithatod meg a **Dashboard**-ot, ahol mentheted az adataidat és válthatsz a témák között.
 
 ### 4. A program linkje
-[![Telepítés](https://img.shields.io/badge/Telepítés-Kattints%20ide-brightgreen?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js)
+  [**Telepítés katt ide**](https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js)
+
 ---
 
 ## ⚙️ Beállítások (Dashboard)
