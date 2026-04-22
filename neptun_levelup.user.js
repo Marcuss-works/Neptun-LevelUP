@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Neptun LevelUP!
+// @name         Neptun LevelUP! - Javítás
 // @namespace    http://tampermonkey.net/
-// @version      V1.0
+// @version      V1.1
 // @description  Univerzális Neptun csomag
 // @updateURL    https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js
 // @downloadURL  https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js
@@ -54,9 +54,21 @@
 (function() {
     'use strict';
 
+    // Kizárjuk az e-learninget és a moodle-t
     if (window.location.href.includes("elearning") || window.location.href.includes("moodle")) {
-    return;
-}
+        return;
+    }
+
+    // ÚJ SZŰRŐ: Csak akkor fusson, ha Neptun-specifikus az URL
+    // A legtöbb Neptun ezeket használja: login.aspx, main.aspx vagy /hallgato/
+    const isNeptun = /login\.aspx|main\.aspx|hallgato|oktato/i.test(window.location.href);
+
+    // Ha nem Neptun oldalon vagyunk, álljunk meg
+    if (!isNeptun) {
+        return;
+    }
+
+    // --- Innentől jön a kódod többi része ---
 
      // ---Menü rendszer---
     const THEMES = {
@@ -70,13 +82,36 @@
     };
 
     const getSettings = () => {
-        const defaults = { Automatikus_belépés: true, Animációk: true, Végtelen_munkamenet: true, Ping_kijelzés : true, Automatikus_próbálkozás: true, Sötét_mód: true, Szerver_idő: true, theme: 'levelup' };
+        const defaults = {
+            Automatikus_belépés: true,
+            Animációk: true,
+            Végtelen_munkamenet: true,
+            Ping_kijelzés : true,
+            Automatikus_próbálkozás: true,
+            Sötét_mód: true,
+            Szerver_idő: true,
+            theme: 'levelup',
+            activeAccount: null //
+        };
         const saved = localStorage.getItem('marcuss_settings');
         return saved ? JSON.parse(saved) : defaults;
     };
 
     let CONFIG = getSettings();
-    let credentials = { user: localStorage.getItem('marcuss_kod'), pass: localStorage.getItem('marcuss_pwd') };
+
+    // Fiókok lekérése (tömbként)
+    const getAccounts = () => {
+        const accs = localStorage.getItem('marcuss_accounts');
+        return accs ? JSON.parse(accs) : [];
+    };
+
+    // Az aktuálisan kiválasztott fiók adatai
+    const getActiveCredentials = () => {
+        const accounts = getAccounts();
+        return accounts.find(a => a.user === CONFIG.activeAccount) || null;
+    };
+
+    let credentials = getActiveCredentials();
 
     // ÁLLAPOTOK
     let belepesFolyamatban = false, loginElkuldve = false, manualisStop = false;
@@ -90,6 +125,7 @@
             #lu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 1000009; display: none; opacity: 0; transition: opacity 0.3s; }
             #levelup-modal { position: fixed; top: 55%; left: 50%; transform: translate(-50%, -40%); background: var(--lu-bg); border: 1px solid var(--lu-main); border-radius: 16px; color: white; font-family: 'Segoe UI', sans-serif; z-index: 1000010; box-shadow: 0 20px 60px rgba(0,0,0,0.8); width: 600px; overflow: hidden; display: none; flex-direction: column; opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
             #levelup-modal.active { opacity: 1; top: 50%; transform: translate(-50%, -50%); }
+            #lu-ping-container { border: 1px solid var(--lu-main) !important; }
             .lu-header { background: var(--lu-main); color: black; padding: 15px; font-weight: bold; text-align: center; font-size: 18px; position: relative; }
             #lu-close-x { position: absolute; right: 15px; top: 12px; cursor: pointer; font-size: 22px; transition: transform 0.2s; }
             #lu-close-x:hover { transform: scale(1.3) rotate(90deg); color: #ff0000; }
@@ -173,7 +209,7 @@
         }, 1000);
     };
 
-    // DASHBOARD ÉS EGYÉB MODULOK
+    // --- DASHBOARD ÉS EGYÉB MODULOK ---
 
     // --- Dashboard ---
     const showDashboard = () => {
@@ -184,23 +220,29 @@
             modal = document.createElement('div'); modal.id = 'levelup-modal'; document.body.appendChild(modal);
         }
 
-        const hasAcc = credentials.user && credentials.pass;
+        const accounts = getAccounts();
+
         modal.innerHTML = `
             <div class="lu-header">🚀 Neptun LevelUP! <span id="lu-close-x">×</span></div>
             <div class="lu-body">
                 <div class="lu-col">
-                    <h4 style="margin:0; color:var(--lu-main);">👤 Fiók</h4>
-                    ${hasAcc ? `
-                        <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; border-left:3px solid var(--lu-main);">
-                            <small style="color:#888;">Aktív:</small><br><b>${credentials.user}</b>
-                        </div>
-                        <button id="lu-del-acc" class="lu-btn lu-btn-danger">TÖRLÉS</button>
-                    ` : `
-                        <input type="text" id="lu-u" placeholder="Neptun kód" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:8px;">
-                        <input type="password" id="lu-p" placeholder="Jelszó" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; padding:10px; border-radius:8px; margin-top:5px;">
-                        <button id="lu-save-acc" class="lu-btn" style="margin-top:5px;">MENTÉS</button>
-                    `}
-                    <h4 style="margin:10px 0 0 0; color:var(--lu-main);">🌈 Stílus</h4>
+                    <h4 style="margin:0; color:var(--lu-main);">👥 Fiókok kezelése</h4>
+                    <div id="account-list" style="max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px;">
+                        ${accounts.map(acc => `
+                            <div class="lu-module-row" style="border: 1px solid ${CONFIG.activeAccount === acc.user ? 'var(--lu-main)' : 'transparent'}; background: ${CONFIG.activeAccount === acc.user ? 'rgba(0,222,164,0.1)' : 'rgba(255,255,255,0.05)'};">
+                                <span class="lu-select-acc" data-user="${acc.user}" style="flex-grow:1;">${acc.user} ${CONFIG.activeAccount === acc.user ? '✅' : ''}</span>
+                                <span class="lu-del-acc" data-user="${acc.user}" style="color:#ff4444; cursor:pointer; padding: 0 5px;">×</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
+                        <input type="text" id="lu-u" placeholder="Neptun kód" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; padding:8px; border-radius:5px;">
+                        <input type="password" id="lu-p" placeholder="Jelszó" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; padding:8px; border-radius:5px;">
+                        <button id="lu-add-acc" class="lu-btn" style="padding:8px;">➕ HOZZÁADÁS</button>
+                    </div>
+
+                    <h4 style="margin:15px 0 5px 0; color:var(--lu-main);">🌈 Stílus</h4>
                     <div class="lu-theme-picker">
                         ${Object.keys(THEMES).map(t => `<div class="lu-theme-circle ${CONFIG.theme === t ? 'active' : ''}" style="background:${THEMES[t].main}" data-theme="${t}"></div>`).join('')}
                     </div>
@@ -208,52 +250,83 @@
                 <div class="lu-divider"></div>
                 <div class="lu-col">
                     <h4 style="margin:0; color:var(--lu-main);">🛠️ Modulok</h4>
-                   <div id="lu-toggles" style="display:flex; flex-direction:column; gap:2px;">
-            ${['Automatikus_belépés', 'Animációk', 'Végtelen_munkamenet', 'Ping_kijelzés', 'Sötét_mód', 'Szerver_idő', 'Automatikus_próbálkozás'].map(key => {
-
-            const labels = {
-            Automatikus_belépés: "🤖 Automata belépés",
-            Animációk: "⚡ Animációk",
-            Végtelen_munkamenet: "🔄 Végtelen munkamenet",
-            Ping_kijelzés: "📶 Ping",
-            Sötét_mód: "🌙 Sötét mód",
-            Szerver_idő: "⏰ Szerver óra",
-            Automatikus_próbálkozás: "🚀 Auto-Retry (Hiba esetén)"
-            };
-
-            return `
-            <label class="lu-module-row">
-                <span>${labels[key] || key}</span>
-                <input type="checkbox" data-key="${key}" ${CONFIG[key] ? 'checked' : ''}>
-            </label>
-        `;
-        }).join('')}
-        </div>
-                    <button id="lu-apply" class="lu-btn" style="margin-top:auto;">✅ MENTÉS</button>
+                    <div id="lu-toggles">
+                        ${['Automatikus_belépés', 'Animációk', 'Végtelen_munkamenet', 'Ping_kijelzés', 'Sötét_mód', 'Szerver_idő', 'Automatikus_próbálkozás'].map(key => {
+                            const labels = {
+                                Automatikus_belépés: "🤖 Automata belépés",
+                                Animációk: "⚡ Animációk",
+                                Végtelen_munkamenet: "🔄 Végtelen munkamenet",
+                                Ping_kijelzés: "📶 Ping",
+                                Sötét_mód: "🌙 Sötét mód",
+                                Szerver_idő: "⏰ Szerver óra",
+                                Automatikus_próbálkozás: "🚀 Auto-Retry"
+                            };
+                            return `
+                                <label class="lu-module-row">
+                                    <span>${labels[key] || key}</span>
+                                    <input type="checkbox" data-key="${key}" ${CONFIG[key] ? 'checked' : ''}>
+                                </label>`;
+                        }).join('')}
+                    </div>
+                    <button id="lu-apply" class="lu-btn" style="margin-top:auto;">✅ MENTÉS ÉS ÚJRATÖLTÉS</button>
                 </div>
             </div>`;
 
         overlay.style.display = 'block'; modal.style.display = 'flex';
         setTimeout(() => { overlay.style.opacity = '1'; modal.classList.add('active'); }, 10);
 
+        // --- ESEMÉNYKEZELŐK ---
+
+        // Bezárás
         modal.querySelector('#lu-close-x').onclick = () => {
             overlay.style.opacity = '0'; modal.classList.remove('active');
             setTimeout(() => { modal.style.display = 'none'; overlay.style.display = 'none'; }, 300);
         };
 
+        // Fiók hozzáadása
+        modal.querySelector('#lu-add-acc').onclick = () => {
+            const u = modal.querySelector('#lu-u').value.trim().toUpperCase();
+            const p = modal.querySelector('#lu-p').value;
+            if(u && p) {
+                let accs = getAccounts();
+                accs = accs.filter(a => a.user !== u); // Duplikáció törlése
+                accs.push({user: u, pass: p});
+                localStorage.setItem('marcuss_accounts', JSON.stringify(accs));
+                CONFIG.activeAccount = u; // Az új legyen az aktív
+                localStorage.setItem('marcuss_settings', JSON.stringify(CONFIG));
+                showDashboard(); // UI frissítés
+            }
+        };
+
+        // Fiók kiválasztása (Váltás)
+        modal.querySelectorAll('.lu-select-acc').forEach(el => {
+            el.onclick = () => {
+                CONFIG.activeAccount = el.dataset.user;
+                localStorage.setItem('marcuss_settings', JSON.stringify(CONFIG));
+                showDashboard();
+            };
+        });
+
+        // Fiók törlése
+        modal.querySelectorAll('.lu-del-acc').forEach(el => {
+            el.onclick = (e) => {
+                e.stopPropagation();
+                if(confirm(`Töröljük a(z) ${el.dataset.user} fiókot?`)) {
+                    let accs = getAccounts().filter(a => a.user !== el.dataset.user);
+                    localStorage.setItem('marcuss_accounts', JSON.stringify(accs));
+                    if(CONFIG.activeAccount === el.dataset.user) CONFIG.activeAccount = null;
+                    localStorage.setItem('marcuss_settings', JSON.stringify(CONFIG));
+                    showDashboard();
+                }
+            };
+        });
+
+        // Téma váltás
         modal.querySelectorAll('.lu-theme-circle').forEach(c => {
             c.onclick = () => { CONFIG.theme = c.dataset.theme; injectStyles(); showDashboard(); };
         });
 
-        if (!hasAcc) {
-            modal.querySelector('#lu-save-acc').onclick = () => {
-                const u = modal.querySelector('#lu-u').value.trim(), p = modal.querySelector('#lu-p').value;
-                if(u && p) { localStorage.setItem('marcuss_kod', u); localStorage.setItem('marcuss_pwd', p); location.reload(); }
-            };
-        } else {
-            modal.querySelector('#lu-del-acc').onclick = () => { if(confirm("Törlés?")) { localStorage.removeItem('marcuss_kod'); localStorage.removeItem('marcuss_pwd'); location.reload(); } };
-        }
-
+        // Mentés gomb
         modal.querySelector('#lu-apply').onclick = () => {
             modal.querySelectorAll('#lu-toggles input').forEach(c => { CONFIG[c.dataset.key] = c.checked; });
             localStorage.setItem('marcuss_settings', JSON.stringify(CONFIG));
@@ -309,7 +382,7 @@
             const secs = String(correctedNow.getSeconds()).padStart(2, '0');
             const ms = Math.floor(correctedNow.getMilliseconds() / 100); // Csak az első tizedest mutatjuk
 
-            clockDiv.innerHTML = `🌐 <span style="color:white">Szerver:</span> ${hours}:${mins}:${secs}<span style="font-size:10px; opacity:0.7">.${ms}</span>`;
+            clockDiv.innerHTML = `<span style="color:white">🌐 Szerver: ${hours}:${mins}:${secs}<span style="font-size:10px; opacity:0.7">.${ms}</span></span>`;
         };
 
         syncTime();
@@ -317,28 +390,29 @@
         setInterval(updateUI, 50);
     };
 
-    // --- Ping_kijelzés ---
+    // --- Ping kijelzés ---
     const Ping_kijelzés = () => {
         if (!CONFIG.Ping_kijelzés) return;
         const container = document.createElement('div');
+        container.id = 'lu-ping-container';
         container.style = `
-        position: fixed;
-        top: 5px;
-        left: 10px;
-        padding: 5px 10px;
-        background: rgba(0, 0, 0, 0.8);
-        color: #fff;
-        border: 1px solid #444;
-        border-radius: 20px;
-        font-family: 'Consolas', monospace;
-        font-size: 13px;
-        z-index: 999999;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 0px 10px rgba(0,0,0,0.3);
-        pointer-events: none;
-        transition: all 0.3s ease;
+            position: fixed;
+            top: 5px;
+            left: 10px;
+            padding: 5px 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border: 1px solid var(--lu-main); /* FIX SZÍN HELYETT VÁLTOZÓ */
+            border-radius: 20px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0px 10px rgba(0,0,0,0.3);
+            pointer-events: none;
+            transition: all 0.3s ease;
         `;
         const dot = document.createElement('div');
         dot.style = `width:10px; height:10px; background:#888; border-radius:50%;`;
@@ -369,7 +443,6 @@
             if (window.jQuery) window.jQuery.fx.off = true;
         }, 3000);
     };
-
 
     // --- Szerver túlterhelés ellen ---
     const startErrorRefresher = () => {
@@ -405,33 +478,44 @@
     }
 };
 
-    // --- Sötét_mód ---
+   // --- Sötét_mód ---
     const Sötét_mód = () => {
         if (!CONFIG.Sötét_mód) return;
         const style = document.createElement('style');
         style.id = 'lu-dark-mode-css';
         style.innerHTML = `
-            /* Az egész oldal invertálása */
+            /* 1. Alap invertálás */
             html {
                 filter: invert(0.9) hue-rotate(180deg) !important;
                 background: #fff !important;
             }
 
-            /* Képek, videók és az összes LevelUP elem visszainvertálása, hogy normálisan nézzenek ki */
-            /* Képek és LevelUP elemek visszainvertálása */
-            img, iframe, #levelup-modal, #levelup-launcher, #lu-overlay, #neptun-timer-ui, #lu-server-clock {
-            filter: invert(1) hue-rotate(180deg) !important;
+            /* 2. VISSZAINVERTÁLÁS (Ami maradjon eredeti) */
+            img, iframe,
+            #levelup-modal, #levelup-launcher, #lu-overlay, #neptun-timer-ui, #lu-server-clock, #lu-ping-container,
+            neptun-notification-bar, .footer, #footer, .bottom_menu_wrapper, #lblLablec,
+            .footer__logo, .footer__informations, #menu-btn, textarea, .cke_inner,
+            /* JAVÍTOTT NÉV: kötőjellel, ahogy fentebb létrehoztad */
+            #marcuss-timer-ui {
+                filter: invert(1) hue-rotate(180deg) !important;
             }
 
-            /* Fix a háttérszínekhez a LevelUP ablakon belül */
-            #levelup-modal input, #levelup-modal button {
-                filter: none !important;
+            /* 3. SZÖVEG FIXEK */
+            .footer *, #footer *, neptun-notification-bar *, #marcuss-timer-ui * {
+                color: inherit !important;
+                -webkit-text-fill-color: inherit !important;
+            }
+
+            /* 4. SZERKESZTŐ MEZŐK */
+            textarea {
+                background-color: #fff !important;
+                color: #000 !important;
             }
         `;
         document.head.appendChild(style);
     };
 
-    // --- infinity Workbench ---
+    // --- Végtelen munkamenet ---
     const Végtelen_munkamenet = () => {
         if (!CONFIG.Végtelen_munkamenet) return;
         let bearerToken = null;
