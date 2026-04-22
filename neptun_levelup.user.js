@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Neptun LevelUP!
+// @name         Neptun LevelUP! - Javítás
 // @namespace    http://tampermonkey.net/
 // @version      V1.1
 // @description  Univerzális Neptun csomag
@@ -138,7 +138,7 @@
             .lu-btn { background: var(--lu-main); color: black; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
             .lu-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
             .lu-btn-danger { background: #ff4444; color: white; }
-            #levelup-launcher { position: fixed; bottom: 5px; left: 5px; width: 55px; height: 55px; background: var(--lu-bg); border: 2px solid var(--lu-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000008; font-size: 26px; transition: all 0.4s; }
+            #levelup-launcher { position: fixed; bottom: 5px; left: 7px; width: 55px; height: 55px; background: var(--lu-bg); border: 2px solid var(--lu-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000008; font-size: 26px; transition: all 0.4s; }
             #levelup-launcher:hover { transform: rotate(45deg) scale(1.1); box-shadow: 0 0 20px var(--lu-main); background: var(--lu-main); color: black; }
             #marcuss-timer-ui { position: fixed; top: 20px; right: 20px; padding: 15px; background: #1e1e1e; color: var(--lu-main); border: 2px solid var(--lu-main); border-radius: 10px; z-index: 1000009; font-weight: bold; text-align: center; min-width: 150px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
             .lu-theme-picker { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -239,7 +239,7 @@
                     <div style="display:flex; flex-direction:column; gap:5px; padding:10px; background:rgba(255,255,255,0.03); border-radius:8px;">
                         <input type="text" id="lu-u" placeholder="Neptun kód" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; padding:8px; border-radius:5px;">
                         <input type="password" id="lu-p" placeholder="Jelszó" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; padding:8px; border-radius:5px;">
-                        <button id="lu-add-acc" class="lu-btn" style="padding:8px;">➕ HOZZÁADÁS</button>
+                        <button id="lu-add-acc" class="lu-btn" style="padding:8px;">Mentés</button>
                     </div>
 
                     <h4 style="margin:15px 0 5px 0; color:var(--lu-main);">🌈 Stílus</h4>
