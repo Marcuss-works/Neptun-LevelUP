@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Neptun LevelUP! - Javítás
+// @name         Neptun LevelUP!
 // @namespace    http://tampermonkey.net/
 // @version      V1.1
 // @description  Univerzális Neptun csomag
