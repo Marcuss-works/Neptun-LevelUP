@@ -60,16 +60,12 @@
     }
 
     // ÚJ SZŰRŐ: Csak akkor fusson, ha Neptun-specifikus az URL
-    // A legtöbb Neptun ezeket használja: login.aspx, main.aspx vagy /hallgato/
     const isNeptun = /login\.aspx|main\.aspx|hallgato|oktato/i.test(window.location.href);
 
-    // Ha nem Neptun oldalon vagyunk, álljunk meg
     if (!isNeptun) {
         return;
     }
-
-    // --- Innentől jön a kódod többi része ---
-
+    
      // ---Menü rendszer---
     const THEMES = {
         white:   { main: '#ffffff', bg: '#000000', accent: '#F3F3F3' },
@@ -211,7 +207,7 @@
 
     // --- DASHBOARD ÉS EGYÉB MODULOK ---
 
-    // --- Dashboard ---
+    // Dashboard
     const showDashboard = () => {
         let modal = document.getElementById('levelup-modal');
         let overlay = document.getElementById('lu-overlay');
