@@ -15,7 +15,7 @@ Neptun egységes tanulmányi rendszert. Felejtsd el a lassú belépést és a r�
 ### V1.2 (Aktuális verzió)
 | Funkció | Leírás |
 | :--- | :--- |
-| 🧹 ** Üzenet láttamozása** | Olvasatlan üzenetek automatikus láttamozása egy kattintással. |
+| 🧹 **Üzenet láttamozása** | Olvasatlan üzenetek automatikus láttamozása egy kattintással. |
 
 ### V1.1
 | Funkció | Leírás |
