@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Neptun LevelUP!
 // @namespace    http://tampermonkey.net/
-// @version      V1.1
+// @version      V1.2
 // @description  Univerzális Neptun csomag
 // @updateURL    https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js
 // @downloadURL  https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js
@@ -65,7 +65,16 @@
     if (!isNeptun) {
         return;
     }
-    
+
+    let stats = {
+    startTime: null,
+    endTime: null,
+    success: 0,
+    failed: 0,
+    errors: []
+};
+
+
      // ---Menü rendszer---
     const THEMES = {
         white:   { main: '#ffffff', bg: '#000000', accent: '#F3F3F3' },
@@ -79,13 +88,14 @@
 
     const getSettings = () => {
         const defaults = {
-            Automatikus_belépés: true,
+            Automatikus_belépés: false,
             Animációk: true,
-            Végtelen_munkamenet: true,
+            Végtelen_munkamenet: false,
             Ping_kijelzés : true,
-            Automatikus_próbálkozás: true,
-            Sötét_mód: true,
+            Automatikus_próbálkozás: false,
+            Sötét_mód: false,
             Szerver_idő: true,
+            Auto_panel_nyitás: false,
             theme: 'levelup',
             activeAccount: null //
         };
@@ -134,7 +144,7 @@
             .lu-btn { background: var(--lu-main); color: black; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
             .lu-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
             .lu-btn-danger { background: #ff4444; color: white; }
-            #levelup-launcher { position: fixed; bottom: 5px; left: 10px; width: 55px; height: 55px; background: var(--lu-bg); border: 2px solid var(--lu-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000008; font-size: 26px; transition: all 0.4s; }
+            #levelup-launcher { position: fixed; bottom: 5px; left: 5px; width: 55px; height: 55px; background: var(--lu-bg); border: 2px solid var(--lu-main); border-radius: 50%; padding-top: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000008; font-size: 30px; transition: all 0.4s; }
             #levelup-launcher:hover { transform: rotate(45deg) scale(1.1); box-shadow: 0 0 20px var(--lu-main); background: var(--lu-main); color: black; }
             #marcuss-timer-ui { position: fixed; top: 20px; right: 20px; padding: 15px; background: #1e1e1e; color: var(--lu-main); border: 2px solid var(--lu-main); border-radius: 10px; z-index: 1000009; font-weight: bold; text-align: center; min-width: 150px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
             .lu-theme-picker { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -242,6 +252,11 @@
                     <div class="lu-theme-picker">
                         ${Object.keys(THEMES).map(t => `<div class="lu-theme-circle ${CONFIG.theme === t ? 'active' : ''}" style="background:${THEMES[t].main}" data-theme="${t}"></div>`).join('')}
                     </div>
+                    <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                    <button id="lu-action-clear-msgs" class="lu-btn" style="width: 100%; background: var(--lu-main); color: black;">
+                    📩 ÜZENETEK LÁTTAMOZÁSA
+                    </button>
+                    </div>
                 </div>
                 <div class="lu-divider"></div>
                 <div class="lu-col">
@@ -255,7 +270,7 @@
                                 Ping_kijelzés: "📶 Ping",
                                 Sötét_mód: "🌙 Sötét mód",
                                 Szerver_idő: "⏰ Szerver óra",
-                                Automatikus_próbálkozás: "🚀 Auto-Retry"
+                                Automatikus_próbálkozás: "🚀 Automata probálkozás",
                             };
                             return `
                                 <label class="lu-module-row">
@@ -322,6 +337,84 @@
             c.onclick = () => { CONFIG.theme = c.dataset.theme; injectStyles(); showDashboard(); };
         });
 
+        // --- ÜZENET LÁTTAMOZÓ MODUL ---
+        const actionButtonHtml = `
+        <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+        <button id="lu-action-clear-msgs" class="lu-btn" style="width: 100%; background: var(--lu-main); color: black; font-weight: bold; border: 1px solid rgba(0,0,0,0.2);">
+        📩 ÜZENETEK LÁTTAMOZÁSA MOST
+        </button>
+        </div>`;
+
+        modal.querySelector('#lu-action-clear-msgs').onclick = async () => {
+            const closeBtn = modal.querySelector('#lu-close-x');
+            if (closeBtn) closeBtn.click();
+            if (!window.location.href.includes('/messages')) {
+                console.log("Kezdőlap észlelve, navigáció indul...");
+
+                const msgHeader = Array.from(document.querySelectorAll('.widget__title'))
+                               .find(h => h.innerText.includes('Üzenetek'));
+
+                if (msgHeader) {
+                    const accordionHeader = msgHeader.closest('mat-expansion-panel-header');
+                if (accordionHeader) {
+                accordionHeader.click();
+                await new Promise(r => setTimeout(r, 1000));
+
+                const allMsgsBtn = Array.from(document.querySelectorAll('.mdc-button__label'))
+                                        .find(span => span.innerText.includes('Összes üzenet'));
+
+                if (allMsgsBtn) {
+                    allMsgsBtn.click();
+                    console.log("Átirányítás az üzenetekhez...");
+                    await new Promise(r => setTimeout(r, 3500)); // Kicsit több idő az átváltásra
+                } else {
+                    console.error("Nem találom az 'Összes üzenet' gombot!");
+                    return;
+                }
+            }
+        }
+    }
+
+    // --- 2. LÁTTAMOZÁSI FÁZIS (PORSZÍVÓ MÓD) ---
+    const getUnreadCards = () => {
+        const allCards = Array.from(document.querySelectorAll('neptun-message-card'));
+        return allCards.filter(card => {
+            const hasDot = card.querySelector('neptun-dot-indicator') !== null;
+            const hasBadge = card.querySelector('neptun-badge') !== null;
+            const isBold = card.querySelector('.message-text-bold') !== null;
+            return hasDot || hasBadge || isBold;
+        });
+    };
+
+    // Megvárjuk, amíg a lista betöltődik
+    await new Promise(r => setTimeout(r, 1000));
+    let unreadMsgs = getUnreadCards();
+
+    if (unreadMsgs.length > 0) {
+        console.log(`${unreadMsgs.length} olvasatlan üzenet feldolgozása porszívó módban...`);
+
+        for (let i = 0; i < unreadMsgs.length; i++) {
+            let currentList = getUnreadCards();
+            if (currentList.length === 0) break;
+
+            let target = currentList[0];
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            await new Promise(r => setTimeout(r, 400));
+
+            target.click();
+
+            console.log(`Láttamozva: ${i + 1} / ${unreadMsgs.length}`);
+            await new Promise(r => setTimeout(r, 900));
+        }
+        alert("Kész! Minden látható olvasatlan üzenetet 'felszippantottam'.");
+    } else {
+        alert("Nem találtam olvasatlan üzenetet a listában.");
+    }
+
+    location.reload();
+};
+
         // Mentés gomb
         modal.querySelector('#lu-apply').onclick = () => {
             modal.querySelectorAll('#lu-toggles input').forEach(c => { CONFIG[c.dataset.key] = c.checked; });
@@ -356,11 +449,11 @@
         clockDiv.id = 'lu-server-clock';
         clockDiv.style = `
             position: fixed;
-            top: 40px;
-            left: 10px;
+            bottom: 3px;
+            right: 5px;
             color: var(--lu-main);
             font-family: 'Consolas', monospace;
-            font-size: 13px;
+            font-size: 12px;
             z-index: 1000000;
             background: rgba(0,0,0,0.8);
             padding: 5px 10px;
@@ -376,9 +469,8 @@
             const hours = String(correctedNow.getHours()).padStart(2, '0');
             const mins = String(correctedNow.getMinutes()).padStart(2, '0');
             const secs = String(correctedNow.getSeconds()).padStart(2, '0');
-            const ms = Math.floor(correctedNow.getMilliseconds() / 100); // Csak az első tizedest mutatjuk
 
-            clockDiv.innerHTML = `<span style="color:white">🌐 Szerver: ${hours}:${mins}:${secs}<span style="font-size:10px; opacity:0.7">.${ms}</span></span>`;
+            clockDiv.innerHTML = `<span style="color:white">🌐 Szerver: ${hours}:${mins}:${secs}<span style="font-size:10px</span></span>`;
         };
 
         syncTime();
@@ -393,15 +485,15 @@
         container.id = 'lu-ping-container';
         container.style = `
             position: fixed;
-            top: 5px;
-            left: 10px;
+            bottom: 35px;
+            right: 5px;
             padding: 5px 10px;
             background: rgba(0, 0, 0, 0.8);
             color: #fff;
-            border: 1px solid var(--lu-main); /* FIX SZÍN HELYETT VÁLTOZÓ */
+            border: 1px solid var(--lu-main);
             border-radius: 20px;
             font-family: 'Consolas', monospace;
-            font-size: 13px;
+            font-size: 12px;
             z-index: 999999;
             display: flex;
             align-items: center;
