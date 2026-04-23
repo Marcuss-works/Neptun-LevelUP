@@ -1,6 +1,5 @@
 # 🚀 Neptun LevelUP!
 
-[![Neptun LevelUP Banner](https://img.shields.io/badge/Neptun-LevelUP-00dea4?style=for-the-badge&logo=javascript)](#reszletes-funkciobemutato)
 [![Telepítés](https://img.shields.io/badge/Telepítés-Kattints%20ide-brightgreen?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Marcuss-works/Neptun-LevelUP/main/neptun_levelup.user.js)
 ![Version](https://img.shields.io/badge/Version-V1.1-blue?style=for-the-badge)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](https://github.com/Marcuss-works/Neptun-LevelUP/blob/main/LICENSE)
@@ -13,7 +12,12 @@ Neptun egységes tanulmányi rendszert. Felejtsd el a lassú belépést és a r�
 
 ## ✨ Funkciók és Verziótörténet
 
-### V1.1 (Aktuális verzió)
+### V1.2 (Aktuális verzió)
+| Funkció | Leírás |
+| :--- | :--- |
+| 🧹 ** Üzenet láttamozása** | Olvasatlan üzenetek automatikus láttamozása egy kattintással. |
+
+### V1.1
 | Funkció | Leírás |
 | :--- | :--- |
 | 👥 **Multi-Account** | Korlátlan fiók mentése és gyorsváltás a profilok között. |
@@ -71,6 +75,14 @@ A Dashboardon keresztül finomhangolhatod a működést:
 * **🌈 Stílus:** Azonnali előnézettel válthatsz a színes témák között.
 
 ---
+
+### 📩 V1.2 Újdonságok
+
+#### 🧹 Üzenet Láttamozó
+Szabadulj meg az olvasatlan üzenetektől egy kattintással.
+* **Automata Láttamozás:** A script végigkattintja az összes olvasatlan üzenetet helyetted.
+* **Okos Navigáció:** Ha a kezdőlapon vagy, a bot automatikusan átmegy az üzenetekhez és elindítja a porszívózást.
+* **Statisztika:** A folyamat végén pontos jelentést kapsz a sikeresen elolvasott üzenetek számáról.
 
 ### 🚀 V1.1 Újdonságok
 
